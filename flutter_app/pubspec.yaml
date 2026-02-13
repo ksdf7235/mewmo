@@ -1,0 +1,52 @@
+name: pet_memo
+description: "랜덤 페르소나 기반 AI 메모 앱 - 펫이 메모에 반응합니다"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Database (Local SQLite via Drift)
+  drift: ^2.24.0
+  sqlite3_flutter_libs: ^0.5.32
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Networking
+  dio: ^5.8.0+1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Animation
+  flutter_animate: ^4.5.2
+
+  # Fonts
+  google_fonts: ^6.2.1
+
+  # Utilities
+  intl: ^0.20.2
+  shared_preferences: ^2.5.3
+  drift_flutter: ^0.2.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code Generation
+  build_runner: ^2.4.15
+  drift_dev: ^2.24.0
+
+flutter:
+  uses-material-design: true
