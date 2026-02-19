@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/pet_constants.dart';
 import '../../providers/pet_provider.dart';
+import '../../utils/pet_cache.dart';
 import '../widgets/gacha_egg.dart';
 import '../widgets/pet_avatar.dart';
 
@@ -18,6 +19,23 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
   // 0: egg, 1: hatching, 2: revealed
   int _phase = 0;
   PetType? _result;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkGachaGuard());
+  }
+
+  Future<void> _checkGachaGuard() async {
+    final gachaComplete = await PetCache.getGachaComplete();
+    final petType = await PetCache.getPetType();
+    if ((gachaComplete || (petType != null && petType.isNotEmpty)) && mounted) {
+      final namingComplete = await PetCache.getNamingComplete();
+      if (mounted) {
+        context.go(namingComplete ? '/dashboard' : '/naming');
+      }
+    }
+  }
 
   Future<void> _hatch() async {
     if (_phase != 0) return;

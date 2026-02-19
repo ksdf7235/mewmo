@@ -35,29 +35,37 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
     super.dispose();
   }
 
-  String get _petSound {
+  String _petSound(String petType) {
     final petAsync = ref.read(activePetProvider);
-    return petAsync.whenOrNull(data: (pet) => pet?.petSound) ?? '멍';
+    final cache = ref.read(petCacheProvider).valueOrNull;
+    final sound = petAsync.whenOrNull(data: (pet) => pet?.petSound) ??
+        cache?.sound ??
+        '멍';
+    return sound;
   }
 
-  String get _petType {
+  String _petType() {
     final petAsync = ref.read(activePetProvider);
-    return petAsync.whenOrNull(data: (pet) => pet?.petType) ?? 'shiba';
+    final cache = ref.read(petCacheProvider).valueOrNull;
+    return petAsync.whenOrNull(data: (pet) => pet?.petType) ??
+        cache?.type ??
+        'shiba';
   }
 
-  String get _petDisplayName {
+  String _petDisplayName(String petType) {
     try {
-      return PetType.fromName(_petType).displayName;
+      return PetType.fromName(petType).displayName;
     } catch (_) {
       return '시바견';
     }
   }
 
-  String get _dialogueText {
+  String _dialogueText(String petType) {
+    final sound = _petSound(petType);
     if (_step == 1 || _step == 2) {
-      return '내 이름을 지어줄래? $_petSound!';
+      return '내 이름을 지어줄래? $sound!';
     }
-    return '$_confirmedName? 마음에 들어! 잘 부탁해 주인님! $_petSound!';
+    return '$_confirmedName? 마음에 들어! 잘 부탁해 주인님! $sound!';
   }
 
   Future<void> _confirmName() async {
@@ -74,6 +82,31 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final petAsync = ref.watch(activePetProvider);
+    final cacheAsync = ref.watch(petCacheProvider);
+
+    final String petType = petAsync.whenOrNull(data: (p) => p?.petType) ??
+        cacheAsync.valueOrNull?.type ??
+        'shiba';
+
+    if (petAsync.isLoading && (cacheAsync.valueOrNull?.type ?? '').isEmpty) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                '잠깐만요...',
+                style: TextStyle(color: Colors.grey.shade500),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -95,7 +128,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                 children: [
                   // 펫 아바타
                   PetAvatar(
-                    petType: _petType,
+                    petType: petType,
                     size: PetSize.xl,
                     mood: PetMood.happy,
                   ),
@@ -104,7 +137,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
 
                   // 펫 타입 표시
                   Text(
-                    _petDisplayName,
+                    _petDisplayName(petType),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey.shade500,
                         ),
@@ -113,7 +146,7 @@ class _NamingScreenState extends ConsumerState<NamingScreen> {
                   const SizedBox(height: 24),
 
                   // 말풍선
-                  PetSpeechBubble(text: _dialogueText),
+                  PetSpeechBubble(text: _dialogueText(petType)),
 
                   const SizedBox(height: 32),
 

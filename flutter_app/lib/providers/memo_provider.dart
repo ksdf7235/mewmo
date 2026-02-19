@@ -6,6 +6,8 @@ import '../utils/offline_responses.dart';
 import 'database_provider.dart';
 
 final memoListProvider = StreamProvider<List<MemoEntry>>((ref) {
+  // ignore: avoid_print
+  print('[LOAD] memoListProvider watchAllMemos 구독 시작 ${DateTime.now()}');
   final db = ref.watch(databaseProvider);
   return db.watchAllMemos();
 });

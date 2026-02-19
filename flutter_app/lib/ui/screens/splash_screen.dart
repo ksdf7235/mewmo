@@ -19,19 +19,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _navigate() async {
+    debugPrint('[LOAD] SplashScreen._navigate 시작 ${DateTime.now()}');
     // 약간의 딜레이로 스플래시 표시
     await Future.delayed(const Duration(milliseconds: 800));
+    debugPrint('[LOAD] SplashScreen 800ms 딜레이 완료 ${DateTime.now()}');
     if (!mounted) return;
 
+    debugPrint('[LOAD] onboardingStateProvider.future 대기 시작 ${DateTime.now()}');
     final state = await ref.read(onboardingStateProvider.future);
+    debugPrint('[LOAD] onboardingStateProvider 완료 → $state ${DateTime.now()}');
 
     if (!mounted) return;
     switch (state) {
       case OnboardingState.needsGacha:
+        debugPrint('[LOAD] SplashScreen → /gacha 이동 ${DateTime.now()}');
         context.go('/gacha');
       case OnboardingState.needsNaming:
+        debugPrint('[LOAD] SplashScreen → /naming 이동 ${DateTime.now()}');
         context.go('/naming');
       case OnboardingState.complete:
+        debugPrint('[LOAD] SplashScreen → /dashboard 이동 ${DateTime.now()}');
         context.go('/dashboard');
       case OnboardingState.loading:
         break;

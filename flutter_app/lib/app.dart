@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'config/theme.dart';
+import 'utils/pet_cache.dart';
 import 'ui/screens/splash_screen.dart';
 import 'ui/screens/gacha_screen.dart';
 import 'ui/screens/naming_screen.dart';
@@ -10,6 +11,18 @@ import 'ui/screens/settings_screen.dart';
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
+  redirect: (context, state) async {
+    final loc = state.matchedLocation;
+    if (loc == '/gacha') {
+      final gachaComplete = await PetCache.getGachaComplete();
+      final petType = await PetCache.getPetType();
+      if (gachaComplete || (petType != null && petType.isNotEmpty)) {
+        final namingComplete = await PetCache.getNamingComplete();
+        return namingComplete ? '/dashboard' : '/naming';
+      }
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/',

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/api_config.dart';
 import '../../config/pet_constants.dart';
 import '../../providers/database_provider.dart';
+import '../../utils/pet_cache.dart';
 import '../../providers/pet_provider.dart';
 import '../widgets/pet_avatar.dart';
 
@@ -86,6 +87,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (confirm == true && mounted) {
       await ref.read(databaseProvider).resetAllData();
+      await PetCache.clear();
       if (mounted) context.go('/');
     }
   }

@@ -78,8 +78,14 @@ class AppDatabase extends _$AppDatabase {
 
   // --- Settings operations ---
 
-  Future<UserSettingsEntry?> getSettings() {
-    return (select(userSettingsEntries)..limit(1)).getSingleOrNull();
+  Future<UserSettingsEntry?> getSettings() async {
+    // ignore: avoid_print
+    print('[LOAD] AppDatabase.getSettings 쿼리 시작 ${DateTime.now()}');
+    final result =
+        await (select(userSettingsEntries)..limit(1)).getSingleOrNull();
+    // ignore: avoid_print
+    print('[LOAD] AppDatabase.getSettings 쿼리 완료 ${DateTime.now()}');
+    return result;
   }
 
   Future<UserSettingsEntry> getOrCreateSettings() async {

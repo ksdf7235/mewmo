@@ -15,8 +15,22 @@ class DashboardScreen extends ConsumerWidget {
     final petAsync = ref.watch(activePetProvider);
     final memosAsync = ref.watch(memoListProvider);
 
+    petAsync.whenOrNull(
+      loading: () => debugPrint('[LOAD] Dashboard petAsync 로딩 중 ${DateTime.now()}'),
+      data: (_) =>
+          debugPrint('[LOAD] Dashboard petAsync 로드 완료 ${DateTime.now()}'),
+    );
+    memosAsync.whenOrNull(
+      loading: () =>
+          debugPrint('[LOAD] Dashboard memosAsync 로딩 중 ${DateTime.now()}'),
+      data: (_) =>
+          debugPrint('[LOAD] Dashboard memosAsync 로드 완료 ${DateTime.now()}'),
+    );
+
+    final cacheAsync = ref.watch(petCacheProvider);
+
     return petAsync.when(
-      loading: () => _buildLoading(context),
+      loading: () => _buildLoading(context, cacheAsync.valueOrNull),
       error: (e, _) => _buildError(context, e),
       data: (pet) {
         final petName = pet?.petName ?? '친구';
@@ -24,12 +38,19 @@ class DashboardScreen extends ConsumerWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Row(
-              children: [
-                PetAvatar(petType: petType, size: PetSize.md),
+            centerTitle: false,
+            title: Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                PetAvatar(petType: petType, size: PetSize.sm, mood: PetMood.thinking),
                 const SizedBox(width: 12),
                 Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       '$petName의 코너',
@@ -49,6 +70,7 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
               ],
+            ),
             ),
             actions: [
               IconButton(
@@ -96,14 +118,68 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLoading(BuildContext context) {
+  Widget _buildLoading(
+    BuildContext context,
+    ({String? type, String? sound, String? name})? cache,
+  ) {
+    final petType = cache?.type ?? 'shiba';
+    final petName = cache?.name ?? '친구';
+
     return Scaffold(
+      appBar: cache?.type != null
+          ? AppBar(
+              centerTitle: false,
+              title: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    PetAvatar(
+                      petType: petType,
+                      size: PetSize.sm,
+                      mood: PetMood.thinking,
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '$petName의 코너',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D2D2D),
+                          ),
+                        ),
+                        Text(
+                          '돌아왔구나, 주인님',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.settings, color: Colors.grey.shade600),
+                  onPressed: () => context.push('/settings'),
+                ),
+              ],
+            )
+          : null,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const PetAvatar(
-              petType: 'shiba',
+            PetAvatar(
+              petType: petType,
               size: PetSize.lg,
               mood: PetMood.thinking,
             ),
